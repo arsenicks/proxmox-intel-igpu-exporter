@@ -1,31 +1,14 @@
 # intel-gpu-exporter
 
 > [!IMPORTANT]
-> I am no longer using this, and have no plans to continue support. Please consider forking if interested in using.
+> Forked from onedr0p/intel-gpu-exporter, no credit to me, I made minimal modification.
 
-Get metrics from Intel GPUs
+Get metrics from Intel GPUs, this is intended to run on a proxmox host node as a systemd service
 
 ## Deployment
 
 Runs on port 8080, does stuff, is hyperglued using python and intel_gpu_top
 
-### Docker Compose
-
-```yaml
-version: "3.8"
-
-services:
-  intel-gpu-exporter:
-    image: ghcr.io/onedr0p/intel-gpu-exporter:rolling
-    container_name: intel-gpu-exporter
-    restart: unless-stopped
-    privileged: true
-    pid: host
-    ports:
-      - 8080:8080
-    volumes:
-      - /dev/dri/:/dev/dri/
-```
 
 ## Metrics
 

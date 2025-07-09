@@ -1,0 +1,11 @@
+[Unit]
+Description=Intel iGPU node exporter service
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python3 /var/python_scripts/igpu_exporter.py 9101 http://localhost:9101/metrics
+
+[Install]
+WantedBy=multi-user.target

@@ -142,26 +142,17 @@ if __name__ == "__main__":
     logging.info("Started " + cmd)
     output = ""
 
-    if os.getenv("IS_DOCKER", False):
-        for line in process.stdout:
-            line = line.decode("utf-8").strip()
-            output += line
+    for line in process.stdout:
+        line = line.decode("utf-8").strip()
+        output += line
 
-            try:
-                data = json.loads(output.strip(","))
-                logging.debug(data)
-                update(data)
-                output = ""
-            except json.JSONDecodeError:
-                continue
-    else:
-        while process.poll() is None:
-            read = process.stdout.readline()
-            output += read.decode("utf-8")
-            logging.debug(output)
-            if read == b"},\n":
-                update(json.loads(output[:-2]))
-                output = ""
+        try:
+            data = json.loads(output.strip(","))
+            logging.debug(data)
+            update(data)
+            output = ""
+        except json.JSONDecodeError:
+            continue
 
     process.kill()
 
