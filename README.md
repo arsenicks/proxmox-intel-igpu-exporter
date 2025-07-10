@@ -1,30 +1,58 @@
 # intel-gpu-exporter
 
 > [!IMPORTANT]
-> I am no longer using this, and have no plans to continue support. Please consider forking if interested in using.
+> Forked from onedr0p/intel-gpu-exporter, no credit to me, I made minimal modification to accept args and add a systemd service example.
+> This is intended to run on proxmox node but should run anywhere as far as the requirements are there.
 
-Get metrics from Intel GPUs
+Get metrics from Intel iGPUs, this is intended to run on a proxmox host node as a systemd service. Pretty usefull if you host VM that use passthrough for HW acceleration for transcoding like Plex, Jellyfin, Ombi or even Frigate for object detection. This script will provide different statistics of your iGPU that you can import in prometheus to use with grafana or anything, really, use your imagination.
 
-## Deployment
+## Basic
 
-Runs on port 8080, does stuff, is hyperglued using python and intel_gpu_top
+Runs on port 9100 by default, default refresh is 10000ms. Use intel_gpu_top output as json and parse it to feed the correct format for prometheus scraping.
 
-### Docker Compose
+Tested on Proxmox VE 8.4.1
 
-```yaml
-version: "3.8"
+## Requirements
+- Python 3 (3.11 already installed on pve 8.4.1)
+- Python prometheus_client v0.21.1
+- intel-gpu-tools v1.27.x installed
 
-services:
-  intel-gpu-exporter:
-    image: ghcr.io/onedr0p/intel-gpu-exporter:rolling
-    container_name: intel-gpu-exporter
-    restart: unless-stopped
-    privileged: true
-    pid: host
-    ports:
-      - 8080:8080
-    volumes:
-      - /dev/dri/:/dev/dri/
+## Installation
+As root:
+```bash
+# Install dependency
+apt-get install python3-prometheus-client intel-gpu-tools
+# Get python exporter and put it in /usr/local/bin/intel-gpu-exporter.py on your filesystem
+curl -L -o /usr/local/bin/intel-gpu-exporter.py https://raw.githubusercontent.com/arsenicks/proxmox-intel-igpu-exporter/refs/heads/main/intel-gpu-exporter.py
+# Get systemd service file and put it in /etc/systemd/system/intel_igpu_exporter.service on your filesystem
+curl -L -o /etc/systemd/system/intel_igpu_exporter.service https://raw.githubusercontent.com/arsenicks/proxmox-intel-igpu-exporter/refs/heads/main/intel_igpu_exporter.service
+# Reload systemd and start the service
+systemctl daemon-reload && systemctl start intel_igpu_exporter.service
+# Check if service is up
+systemctl status intel_igpu_exporter.service
+```
+You can also check using a web browser if the web server is available and if the data is refreshing. 
+Simply go to http://ip_pve_node:9100/metrics port 9100 is used by default, if you want to change it read the next section.
+
+
+## Exporter configuration
+If you need to configure the default port(9100) or the default refresh time(10s) you'll have to modify the systemd service file. 
+To apply your change  refresh systemd and restart the service using `systemctl daemon-reload && systemctl restart intel_igpu_exporter.service`
+
+## Prometheus config
+Here's an example job configuration to add to your prometheus config file.
+
+Verify that you are able to access the exporter web page first, and your prometheus need to be able to access your pve node on the configured port..
+```
+  - job_name: pve_igpu_metrics # adjust job_name to fit your setup
+    honor_timestamps: true
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    scheme: http
+    follow_redirects: true
+    static_configs:
+    - targets:
+      - 10.1.1.5:9100 # ip:port of your pve node
 ```
 
 ## Metrics

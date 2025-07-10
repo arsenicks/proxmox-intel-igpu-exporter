@@ -4,6 +4,8 @@ import sys
 import subprocess
 import json
 import logging
+import argparse
+
 
 igpu_engines_blitter_0_busy = Gauge(
     "igpu_engines_blitter_0_busy", "Blitter 0 busy utilisation %"
@@ -119,21 +121,31 @@ def update(data):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Intel iGPU Prometheus Exporter")
+    parser.add_argument(
+        "-r", "--refresh", type=int, default=10000,
+        help="Refresh period in ms for intel_gpu_top (default: 10000)"
+    )
+    parser.add_argument(
+        "-p", "--port", type=int, default=9100,
+        help="Port for Prometheus exporter (default: 9100)"
+    )
+    args = parser.parse_args()
+
     if os.getenv("DEBUG", False):
         debug = logging.DEBUG
     else:
         debug = logging.INFO
     logging.basicConfig(format="%(asctime)s - %(message)s", level=debug)
 
-    start_http_server(8080)
+    start_http_server(args.port)
 
-    period = os.getenv("REFRESH_PERIOD_MS", 10000)
     device = os.getenv("DEVICE")
 
     if device is not None:
-        cmd = "intel_gpu_top -J -s {} -d {}".format(int(period), device)
+        cmd = "intel_gpu_top -J -s {} -d {}".format(args.refresh, device)
     else:
-        cmd = "intel_gpu_top -J -s {}".format(int(period))
+        cmd = "intel_gpu_top -J -s {}".format(args.refresh)
 
     process = subprocess.Popen(
         cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -142,26 +154,17 @@ if __name__ == "__main__":
     logging.info("Started " + cmd)
     output = ""
 
-    if os.getenv("IS_DOCKER", False):
-        for line in process.stdout:
-            line = line.decode("utf-8").strip()
-            output += line
+    for line in process.stdout:
+        line = line.decode("utf-8").strip()
+        output += line
 
-            try:
-                data = json.loads(output.strip(","))
-                logging.debug(data)
-                update(data)
-                output = ""
-            except json.JSONDecodeError:
-                continue
-    else:
-        while process.poll() is None:
-            read = process.stdout.readline()
-            output += read.decode("utf-8")
-            logging.debug(output)
-            if read == b"},\n":
-                update(json.loads(output[:-2]))
-                output = ""
+        try:
+            data = json.loads(output.strip(","))
+            logging.debug(data)
+            update(data)
+            output = ""
+        except json.JSONDecodeError:
+            continue
 
     process.kill()
 
