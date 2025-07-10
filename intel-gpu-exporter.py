@@ -119,21 +119,31 @@ def update(data):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Intel iGPU Prometheus Exporter")
+    parser.add_argument(
+        "-r", "--refresh", type=int, default=10000,
+        help="Refresh period in ms for intel_gpu_top (default: 10000)"
+    )
+    parser.add_argument(
+        "-p", "--port", type=int, default=9100,
+        help="Port for Prometheus exporter (default: 9100)"
+    )
+    args = parser.parse_args()
+
     if os.getenv("DEBUG", False):
         debug = logging.DEBUG
     else:
         debug = logging.INFO
     logging.basicConfig(format="%(asctime)s - %(message)s", level=debug)
 
-    start_http_server(8080)
+    start_http_server(args.port)
 
-    period = os.getenv("REFRESH_PERIOD_MS", 10000)
     device = os.getenv("DEVICE")
 
     if device is not None:
-        cmd = "intel_gpu_top -J -s {} -d {}".format(int(period), device)
+        cmd = "intel_gpu_top -J -s {} -d {}".format(args.refresh, device)
     else:
-        cmd = "intel_gpu_top -J -s {}".format(int(period))
+        cmd = "intel_gpu_top -J -s {}".format(args.refresh)
 
     process = subprocess.Popen(
         cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE

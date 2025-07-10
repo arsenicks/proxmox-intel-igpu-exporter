@@ -1,11 +1,11 @@
 [Unit]
-Description=Intel iGPU node exporter service
+Description=Intel iGPU node exporter service. Add flags -r refresh_time -p listening_port if needed
 After=multi-user.target
 
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3 /var/python_scripts/igpu_exporter.py 9101 http://localhost:9101/metrics
+ExecStart=/usr/bin/python3 /usr/local/bin/intel_igpu_exporter.py
 
 [Install]
 WantedBy=multi-user.target
