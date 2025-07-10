@@ -2,22 +2,22 @@
 
 > [!IMPORTANT]
 > Forked from onedr0p/intel-gpu-exporter, no credit to me, I made minimal modification to accept args and add a systemd service example.
+> This is intended to run on proxmox node but should run anywhere as far as the requirements are there.
 
-Get metrics from Intel GPUs, this is intended to run on a proxmox host node as a systemd service. Pretty usefull if you host VM that use passthrough for HW acceleration for transcoding like Plex, Jellyfin, Ombi or even Frigate for object detection. This script will provide different statistics of your iGPU that you can import in prometheus for example to use with grafana.
+Get metrics from Intel iGPUs, this is intended to run on a proxmox host node as a systemd service. Pretty usefull if you host VM that use passthrough for HW acceleration for transcoding like Plex, Jellyfin, Ombi or even Frigate for object detection. This script will provide different statistics of your iGPU that you can import in prometheus to use with grafana or anything, really, use your imagination.
 
 ## Basic
 
-Runs on port 9100 by default, default refresh is at 10000ms. Use intel_gpu_top output as json and parse it to feed the correct format for prometheus scraping.
+Runs on port 9100 by default, default refresh is 10000ms. Use intel_gpu_top output as json and parse it to feed the correct format for prometheus scraping.
 
 Tested on Proxmox VE 8.4.1
 
 ## Requirements
 - Python 3 (3.11 already installed on pve 8.4.1)
-- Python prometheus_client 
-- intel-gpu-tools installed
+- Python prometheus_client v0.21.1
+- intel-gpu-tools v1.27.x installed
 
 ## Installation
-
 As root:
 ```bash
 # Install dependency
@@ -41,6 +41,8 @@ To apply your change  refresh systemd and restart the service using `systemctl d
 
 ## Prometheus config
 Here's an example job configuration to add to your prometheus config file.
+
+Verify that you are able to access the exporter web page first, and your prometheus need to be able to access your pve node on the configured port..
 ```
   - job_name: pve_igpu_metrics # adjust job_name to fit your setup
     honor_timestamps: true
