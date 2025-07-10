@@ -44,7 +44,7 @@ Here's an example job configuration to add to your prometheus config file.
 
 Verify that you are able to access the exporter web page first, and your prometheus need to be able to access your pve node on the configured port..
 ```
-  - job_name: pve_igpu_metrics # adjust job_name to fit your setup
+  - job_name: pve_igpu_metrics # If you don't use this job_name you'll have to modify the instance variable in the simple-grafana-dash.json found in examples folder. Otherwise it will not work.
     honor_timestamps: true
     scrape_interval: 15s
     scrape_timeout: 10s
