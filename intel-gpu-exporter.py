@@ -4,6 +4,8 @@ import sys
 import subprocess
 import json
 import logging
+import argparse
+
 
 igpu_engines_blitter_0_busy = Gauge(
     "igpu_engines_blitter_0_busy", "Blitter 0 busy utilisation %"
