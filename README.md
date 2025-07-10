@@ -55,6 +55,13 @@ Verify that you are able to access the exporter web page first, and your prometh
       - 10.1.1.5:9100 # ip:port of your pve node
 ```
 
+## Grafana
+
+There's a simple dashboard provided in the examples folder. If you use the same prometheus job_name suggested in this readme, it should work out of the box, otherwise you'll have to adjust two lines in the templating section at the bottom of the file. Replace "pve_igpu_metrics" with the job name you used.
+
+Here's a nice Dashboard you can use: https://grafana.com/grafana/dashboards/23251-intel-gpu-metrics/
+This template assume the job name is "intel-gpu", so you'll simply have to adjust the job name at multiple place for it to work. You won't need the requirements described in the page if you sucessfully installed and configured the python and systemd service.
+
 ## Metrics
 
 ```bash
