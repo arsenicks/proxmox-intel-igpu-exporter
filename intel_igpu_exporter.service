@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3 /usr/local/bin/intel_igpu_exporter.py
+ExecStart=/usr/bin/python3 /usr/local/bin/intel-gpu-exporter.py
 
 [Install]
 WantedBy=multi-user.target
