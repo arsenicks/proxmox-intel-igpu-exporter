@@ -30,6 +30,8 @@ curl -L -o /etc/systemd/system/intel_igpu_exporter.service https://raw.githubuse
 systemctl daemon-reload && systemctl start intel_igpu_exporter.service
 # Check if service is up
 systemctl status intel_igpu_exporter.service
+# If everything work as expected enable service at boot
+systemctl enable intel_igpu_exporter.service
 ```
 You can also check using a web browser if the web server is available and if the data is refreshing. 
 Simply go to http://ip_pve_node:9100/metrics port 9100 is used by default, if you want to change it read the next section.
